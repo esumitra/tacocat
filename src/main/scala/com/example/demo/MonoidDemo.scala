@@ -27,6 +27,25 @@ object MonoidDemo {
     .groupBy(_.studentId)
     .mapValues(les => les.map(_.timeOnTask).sum.toDouble / les.size)
 
+  // what can we do with Monoids?
+  val List(s1, s2) = es.map(e => AllTimesSum(e.studentId, e.timeOnTask)).take(2).toList
+
+  // combine them
+  s1 combine s2
+
+  // combine using a symbolic operator |+|
+  s1 |+| s2
+
+  // below does not work
+  // List(s1,s2).sum
+
+  // but,
+  // combineAll monoids in a sequence
+  Monoid.combineAll(List(s1,s2))
+
+  // fold a sequence of monoids
+  List(s1,s2).foldLeft(AllTimesSum("",0))(_ |+| _)
+
   // with Monoids
   // calculate total time-on-task for each student
   es
@@ -53,25 +72,6 @@ object MonoidDemo {
     .groupBy(e => (e.studentId, e.lessonId))
     .mapValues(Monoid.combineAll(_))
     .foreach(println)
-
-  // what can we do with Monoids?
-  val List(s1, s2) = es.map(e => AllTimesSum(e.studentId, e.timeOnTask)).take(2).toList
-
-  // combine them
-  s1 combine s2
-
-  // combine using a symbolic operator |+|
-  s1 |+| s2
-
-  // below does not work
-  // List(s1,s2).sum
-
-  // but,
-  // combineAll monoids in a sequence
-  Monoid.combineAll(List(s1,s2))
-
-  // fold a sequence of monoids
-  List(s1,s2).foldLeft(AllTimesSum("",0))(_ |+| _)
 
   // or foldMap
   es
